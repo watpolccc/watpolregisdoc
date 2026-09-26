@@ -1,0 +1,508 @@
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แบบติดตามเอกสาร งานทะเบียนวัดผล</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async onload="init()"></script>
+<style>
+  :root {
+    --ink: #1d2742;
+    --muted: #5d6680;
+    --line: #d7dce8;
+    --bg: #f3f5fa;
+    --paper: #ffffff;
+    --title: #f4cccc;
+    --reg: #c9daf8;
+    --reg-deep: #2f4f8f;
+    --eval: #d9d2e9;
+    --eval-deep: #5b3f8c;
+    --ok-bg: #d9ead3;  --ok: #276738;
+    --warn-bg: #fff2cc; --warn: #7a5d00;
+    --bad-bg: #f4cccc; --bad: #a3261d;
+    --none-bg: #e8eaf0; --none: #5d6680;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Sarabun", "Leelawadee UI", "Tahoma", sans-serif;
+    font-size: 16px; line-height: 1.55;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--reg-deep); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+ 
+  /* แถบหัว: สีชมพูเหมือนแถวชื่อเรื่องในชีท */
+  .masthead {
+    background: var(--title); border-bottom: 1px solid #e3b5b5;
+    padding: 14px 24px; display: flex; flex-wrap: wrap; gap: 8px 24px;
+    align-items: center; justify-content: space-between;
+  }
+  .masthead h1 { margin: 0; font-size: 1.35rem; font-weight: 700; }
+  .who { display: flex; align-items: center; gap: 12px; font-size: .95rem; }
+  .who .role { background: var(--paper); border-radius: 999px; padding: 2px 12px; font-weight: 600; }
+  .link-btn { background: none; border: 0; text-decoration: underline; cursor: pointer; padding: 4px; }
+ 
+  main { max-width: 1400px; margin: 0 auto; padding: 20px 24px 48px; }
+ 
+  /* หน้าเข้าสู่ระบบ */
+  .login {
+    max-width: 420px; margin: 12vh auto 0; background: var(--paper);
+    border: 1px solid var(--line); border-radius: 12px; padding: 32px; text-align: center;
+  }
+  .login h2 { margin: 0 0 6px; font-size: 1.3rem; }
+  .login p { margin: 0 0 22px; color: var(--muted); }
+  .login .gbtn { display: flex; justify-content: center; min-height: 44px; }
+  .login .error { margin-top: 18px; color: var(--bad); font-weight: 600; }
+ 
+  /* แถบเครื่องมือ */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-bottom: 16px; }
+  .toolbar label { display: flex; flex-direction: column; font-size: .85rem; color: var(--muted); gap: 2px; }
+  .toolbar input, .toolbar select {
+    border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; background: var(--paper); min-width: 150px;
+  }
+  .toolbar .search input { min-width: 260px; }
+  .toolbar .spacer { flex: 1; }
+  .btn {
+    border: 1px solid var(--reg-deep); background: var(--reg-deep); color: #fff;
+    border-radius: 8px; padding: 8px 16px; cursor: pointer; font-weight: 600;
+  }
+  .btn.ghost { background: var(--paper); color: var(--reg-deep); }
+  .btn:disabled { opacity: .55; cursor: wait; }
+ 
+  /* ตาราง: แบ่งแถบ งานทะเบียน / งานวัดผล ตามชีทต้นฉบับ */
+  .table-wrap { overflow-x: auto; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; }
+  table { border-collapse: collapse; width: 100%; min-width: 1080px; }
+  th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+  thead .group th { text-align: center; font-size: 1.05rem; padding: 8px; }
+  thead .reg { background: var(--reg); }
+  thead .eval { background: var(--eval); }
+  thead .cols th { font-weight: 600; font-size: .92rem; }
+  td.eval-start, th.eval-start { border-left: 3px solid var(--eval); }
+  td.center { text-align: center; }
+  td.subject { min-width: 260px; }
+  tbody tr:hover { background: #f8f9fc; }
+ 
+  .files { display: flex; flex-direction: column; gap: 4px; }
+  .files a { color: var(--reg-deep); overflow-wrap: anywhere; }
+  .attach {
+    align-self: flex-start; border: 1px dashed var(--reg-deep); background: none; color: var(--reg-deep);
+    border-radius: 6px; padding: 2px 10px; cursor: pointer; font-size: .9rem;
+  }
+  .attach:disabled { cursor: wait; opacity: .6; }
+  .nofile { color: var(--muted); font-size: .9rem; }
+ 
+  .status {
+    display: inline-block; border-radius: 999px; padding: 3px 12px; font-weight: 600; font-size: .92rem;
+    border: 0; background: var(--none-bg); color: var(--none);
+  }
+  select.status { cursor: pointer; padding-right: 8px; }
+  .status.ok { background: var(--ok-bg); color: var(--ok); }
+  .status.warn { background: var(--warn-bg); color: var(--warn); }
+  .status.bad { background: var(--bad-bg); color: var(--bad); }
+  .note { font-size: .92rem; white-space: pre-wrap; }
+  .edit { background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; }
+ 
+  .empty, .loading { padding: 40px; text-align: center; color: var(--muted); }
+ 
+  /* ฟอร์ม */
+  dialog { border: 0; border-radius: 12px; padding: 0; width: min(560px, 94vw); }
+  dialog::backdrop { background: rgba(29, 39, 66, .45); }
+  .dlg-head { padding: 16px 22px; background: var(--reg); }
+  .dlg-head h2 { margin: 0; font-size: 1.15rem; }
+  form.dlg-body { padding: 18px 22px 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+  form.dlg-body label { display: flex; flex-direction: column; gap: 3px; font-size: .9rem; color: var(--muted); }
+  form.dlg-body .full { grid-column: 1 / -1; }
+  form.dlg-body input, form.dlg-body select, form.dlg-body textarea {
+    border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; color: var(--ink); background: #fff;
+  }
+  form.dlg-body input:disabled, form.dlg-body select:disabled, form.dlg-body textarea:disabled { background: var(--bg); }
+  .section-eval { grid-column: 1 / -1; margin: 6px 0 -4px; padding-top: 10px; border-top: 3px solid var(--eval); font-weight: 600; color: var(--eval-deep); }
+  .actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 6px; }
+ 
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+    background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 8px; max-width: 90vw;
+  }
+  .toast.error { background: var(--bad); }
+ 
+  /* มือถือ: แสดงเป็นรายการซ้อนกัน */
+  @media (max-width: 760px) {
+    main { padding: 14px; }
+    .toolbar .search input, .toolbar input, .toolbar select { min-width: 0; width: 100%; }
+    .toolbar label { flex: 1 1 45%; }
+    .table-wrap { border: 0; background: none; overflow: visible; }
+    table, thead, tbody, tr, td { display: block; min-width: 0; }
+    thead { display: none; }
+    tbody tr { background: var(--paper); border: 1px solid var(--line); border-left: 6px solid var(--reg); border-radius: 10px; margin-bottom: 12px; padding: 6px 0; }
+    td { border: 0; padding: 4px 14px; }
+    td[data-label]::before { content: attr(data-label); display: block; font-size: .8rem; color: var(--muted); }
+    td.eval-start { border-left: 0; border-top: 2px solid var(--eval); margin-top: 6px; padding-top: 10px; }
+    td.center { text-align: left; }
+    form.dlg-body { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+ 
+<header class="masthead">
+  <h1>แบบติดตามเอกสาร การดำเนินการ งานทะเบียนวัดผล</h1>
+  <div class="who" id="who" hidden>
+    <span id="whoEmail"></span>
+    <span class="role" id="whoRole"></span>
+    <button class="link-btn" id="signOutBtn">ออกจากระบบ</button>
+  </div>
+</header>
+ 
+<main>
+  <section class="login" id="loginView" hidden>
+    <h2>เข้าสู่ระบบ</h2>
+    <p>ใช้บัญชี Google ที่ได้รับสิทธิ์จากงานทะเบียนวัดผล</p>
+    <div class="gbtn" id="gbtn"></div>
+    <div class="error" id="loginError" role="alert"></div>
+  </section>
+ 
+  <section id="appView" hidden>
+    <div class="toolbar">
+      <label class="search">ค้นหา
+        <input id="fSearch" type="search" placeholder="ชื่อเรื่อง หรือเลขที่บันทึก">
+      </label>
+      <label>ปีการศึกษา <select id="fYear"></select></label>
+      <label>ภาคเรียน <select id="fTerm"></select></label>
+      <label>สถานะ <select id="fStatus"></select></label>
+      <span class="spacer"></span>
+      <button class="btn ghost" id="reloadBtn">โหลดข้อมูลใหม่</button>
+      <button class="btn" id="addBtn" hidden>เพิ่มบันทึก</button>
+    </div>
+ 
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr class="group">
+            <th class="reg" colspan="7">งานทะเบียน</th>
+            <th class="eval eval-start" colspan="3">งานวัดผล</th>
+          </tr>
+          <tr class="cols">
+            <th class="reg">ลำดับ</th>
+            <th class="reg">ภาคเรียน/ปี</th>
+            <th class="reg">บันทึกเรื่อง</th>
+            <th class="reg">เลขที่บันทึก</th>
+            <th class="reg">วันที่บันทึก</th>
+            <th class="reg">ไฟล์บันทึกข้อความและเอกสาร</th>
+            <th class="reg"></th>
+            <th class="eval eval-start">สถานะการบันทึกผลลงระบบ</th>
+            <th class="eval">หมายเหตุ 1</th>
+            <th class="eval">หมายเหตุ 2</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+ 
+<dialog id="dlg">
+  <div class="dlg-head"><h2 id="dlgTitle">เพิ่มบันทึก</h2></div>
+  <form class="dlg-body" id="dlgForm" method="dialog">
+    <label>ภาคเรียนที่ <input name="term" inputmode="numeric" data-part="reg"></label>
+    <label>ปีการศึกษา <input name="year" inputmode="numeric" data-part="reg"></label>
+    <label class="full">บันทึกเรื่อง <input name="subject" required data-part="reg"></label>
+    <label>เลขที่บันทึก <input name="memoNo" placeholder="เช่น 0003" data-part="reg"></label>
+    <label>วันที่บันทึก <input name="memoDate" type="date" data-part="reg"></label>
+    <div class="section-eval" data-part="eval">งานวัดผล</div>
+    <label class="full" data-part="eval">สถานะการบันทึกผลลงระบบ <select name="status" data-part="eval"></select></label>
+    <label class="full" data-part="eval">หมายเหตุ 1 <textarea name="note1" rows="2" data-part="eval"></textarea></label>
+    <label class="full" data-part="eval">หมายเหตุ 2 <textarea name="note2" rows="2" data-part="eval"></textarea></label>
+    <div class="actions">
+      <button type="button" class="btn ghost" id="dlgCancel">ยกเลิก</button>
+      <button type="submit" class="btn" id="dlgSave">บันทึก</button>
+    </div>
+  </form>
+</dialog>
+ 
+<div class="toast" id="toast" role="status" hidden></div>
+ 
+<script>
+/* ===== ตั้งค่า: ใส่ค่าจริงของคุณ ===== */
+const CONFIG = {
+  API_URL: 'ใส่_URL_Web_app_ที่ลงท้ายด้วย_/exec',
+  CLIENT_ID: 'ใส่_CLIENT_ID.apps.googleusercontent.com',
+  MAX_FILE_MB: 20,
+};
+const ROLE_LABEL = { admin: 'ผู้ดูแลระบบ', 'ทะเบียน': 'งานทะเบียน', 'วัดผล': 'งานวัดผล', 'ดู': 'ดูอย่างเดียว' };
+ 
+const state = { token: null, me: null, records: [], editingRow: null };
+const $ = id => document.getElementById(id);
+ 
+/* ---------- เข้าสู่ระบบ ---------- */
+function init() {
+  google.accounts.id.initialize({
+    client_id: CONFIG.CLIENT_ID,
+    callback: r => { setToken(r.credential); start(); },
+    auto_select: true,
+  });
+  const saved = sessionStorage.getItem('idToken');
+  if (saved && !isExpired(saved)) { state.token = saved; start(); }
+  else showLogin();
+}
+ 
+function isExpired(jwt) {
+  try {
+    const p = JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
+    return p.exp * 1000 < Date.now() + 60000;
+  } catch { return true; }
+}
+ 
+function setToken(t) {
+  state.token = t;
+  try { sessionStorage.setItem('idToken', t); } catch {}
+}
+ 
+function showLogin(message = '') {
+  state.token = null;
+  try { sessionStorage.removeItem('idToken'); } catch {}
+  $('appView').hidden = true; $('who').hidden = true; $('loginView').hidden = false;
+  $('loginError').textContent = message;
+  $('gbtn').innerHTML = '';
+  google.accounts.id.renderButton($('gbtn'), { theme: 'outline', size: 'large', text: 'signin_with', locale: 'th' });
+  if (!message) google.accounts.id.prompt();
+}
+ 
+$('signOutBtn').onclick = () => { google.accounts.id.disableAutoSelect(); showLogin(); };
+ 
+async function start() {
+  $('loginView').hidden = true;
+  try {
+    state.me = await api('me');
+  } catch (e) { return; }
+  $('whoEmail').textContent = state.me.email;
+  $('whoRole').textContent = ROLE_LABEL[state.me.role] || state.me.role;
+  $('who').hidden = false; $('appView').hidden = false;
+  $('addBtn').hidden = !canReg();
+  fillSelect($('dlgForm').status, ['', ...state.me.statuses], v => v || '— ยังไม่ระบุ —');
+  loadRecords();
+}
+ 
+const canReg = () => ['admin', 'ทะเบียน'].includes(state.me?.role);
+const canEval = () => ['admin', 'วัดผล'].includes(state.me?.role);
+ 
+/* ---------- เรียก API ---------- */
+async function api(action, body = {}) {
+  let json;
+  try {
+    const res = await fetch(CONFIG.API_URL, {
+      method: 'POST',
+      // text/plain ป้องกัน CORS preflight ซึ่ง Apps Script ไม่รองรับ
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action, idToken: state.token, ...body }),
+    });
+    json = await res.json();
+  } catch (e) {
+    toast('เชื่อมต่อระบบไม่ได้ ตรวจสอบอินเทอร์เน็ตหรือ API_URL', true);
+    throw e;
+  }
+  if (!json.ok) {
+    if (json.code === 'UNAUTHENTICATED' || json.code === 'NOT_ALLOWED') showLogin(json.message);
+    else toast(json.message, true);
+    throw new Error(json.message);
+  }
+  return json.data;
+}
+ 
+/* ---------- ข้อมูล ---------- */
+async function loadRecords() {
+  $('rows').innerHTML = '<tr><td colspan="10" class="loading">กำลังโหลดข้อมูล…</td></tr>';
+  try {
+    state.records = await api('list');
+  } catch { $('rows').innerHTML = ''; return; }
+  buildFilters();
+  render();
+}
+ 
+function buildFilters() {
+  const keep = { y: $('fYear').value, t: $('fTerm').value, s: $('fStatus').value };
+  const uniq = k => [...new Set(state.records.map(r => r[k]).filter(Boolean))].sort().reverse();
+  fillSelect($('fYear'), ['', ...uniq('year')], v => v || 'ทั้งหมด');
+  fillSelect($('fTerm'), ['', ...uniq('term').reverse()], v => v || 'ทั้งหมด');
+  fillSelect($('fStatus'), ['', ...state.me.statuses, '(ยังไม่ระบุ)'], v => v || 'ทั้งหมด');
+  $('fYear').value = keep.y; $('fTerm').value = keep.t; $('fStatus').value = keep.s;
+}
+ 
+function fillSelect(sel, values, label) {
+  sel.innerHTML = '';
+  values.forEach(v => sel.append(new Option(label(v), v)));
+}
+ 
+['fSearch', 'fYear', 'fTerm', 'fStatus'].forEach(id => $(id).addEventListener('input', render));
+$('reloadBtn').onclick = loadRecords;
+ 
+function filtered() {
+  const q = $('fSearch').value.trim().toLowerCase();
+  const y = $('fYear').value, t = $('fTerm').value, s = $('fStatus').value;
+  return state.records.filter(r =>
+    (!q || (r.subject + ' ' + r.memoNo).toLowerCase().includes(q)) &&
+    (!y || r.year === y) && (!t || r.term === t) &&
+    (!s || (s === '(ยังไม่ระบุ)' ? !r.status : r.status === s)));
+}
+ 
+/* ---------- แสดงผล ---------- */
+function h(tag, attrs = {}, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) el.setAttribute(k, v === true ? '' : v);
+  }
+  kids.flat().forEach(k => k != null && el.append(k));
+  return el;
+}
+ 
+function statusClass(s) {
+  if (!s) return '';
+  if (s.includes('แล้ว')) return 'ok';
+  if (s.includes('เพิ่มเติม') || s.includes('แก้ไข')) return 'bad';
+  if (s.includes('รอ')) return 'warn';
+  return '';
+}
+ 
+function render() {
+  const tbody = $('rows');
+  tbody.innerHTML = '';
+  const list = filtered();
+  if (!list.length) {
+    const msg = state.records.length ? 'ไม่พบบันทึกที่ตรงกับตัวกรอง'
+      : canReg() ? 'ยังไม่มีบันทึก กด "เพิ่มบันทึก" เพื่อเริ่มต้น' : 'ยังไม่มีบันทึก';
+    tbody.append(h('tr', {}, h('td', { colspan: 10, class: 'empty' }, msg)));
+    return;
+  }
+  list.forEach(r => tbody.append(rowEl(r)));
+}
+ 
+function rowEl(r) {
+  const files = h('div', { class: 'files' },
+    r.files.length ? r.files.map(f => h('a', { href: f.url, target: '_blank', rel: 'noopener' }, '📎 ' + f.name))
+                   : h('span', { class: 'nofile' }, 'ยังไม่มีไฟล์'));
+  if (canReg()) files.append(h('button', { class: 'attach', onclick: e => attach(r, e.currentTarget) }, 'แนบไฟล์'));
+ 
+  let status;
+  if (canEval()) {
+    status = h('select', { class: 'status ' + statusClass(r.status), 'aria-label': 'สถานะแถว ' + r.no,
+      onchange: e => quickStatus(r, e.currentTarget) });
+    fillSelect(status, ['', ...state.me.statuses], v => v || '— ยังไม่ระบุ —');
+    status.value = r.status;
+  } else {
+    status = h('span', { class: 'status ' + statusClass(r.status) }, r.status || 'ยังไม่ระบุ');
+  }
+ 
+  const editable = canReg() || canEval();
+  return h('tr', {},
+    h('td', { class: 'center', 'data-label': 'ลำดับ' }, r.no),
+    h('td', { class: 'center', 'data-label': 'ภาคเรียน/ปีการศึกษา' }, [r.term, r.year].filter(Boolean).join('/')),
+    h('td', { class: 'subject', 'data-label': 'บันทึกเรื่อง' }, r.subject),
+    h('td', { class: 'center', 'data-label': 'เลขที่บันทึก' }, r.memoNo),
+    h('td', { 'data-label': 'วันที่บันทึก' }, r.memoDate),
+    h('td', { 'data-label': 'ไฟล์บันทึกข้อความและเอกสาร' }, files),
+    h('td', {}, editable ? h('button', { class: 'edit', onclick: () => openDialog(r) }, 'แก้ไข') : null),
+    h('td', { class: 'eval-start', 'data-label': 'สถานะการบันทึกผลลงระบบ' }, status),
+    h('td', { class: 'note', 'data-label': 'หมายเหตุ 1' }, r.note1),
+    h('td', { class: 'note', 'data-label': 'หมายเหตุ 2' }, r.note2),
+  );
+}
+ 
+/* ---------- การกระทำ ---------- */
+async function quickStatus(r, sel) {
+  const old = r.status;
+  sel.disabled = true;
+  try {
+    await api('update', { row: r.row, record: { status: sel.value } });
+    r.status = sel.value;
+    sel.className = 'status ' + statusClass(r.status);
+    toast('บันทึกสถานะแล้ว');
+  } catch { sel.value = old; }
+  sel.disabled = false;
+}
+ 
+function attach(r, btn) {
+  const input = h('input', { type: 'file', multiple: true });
+  input.onchange = async () => {
+    const files = [...input.files];
+    for (const f of files) {
+      if (f.size > CONFIG.MAX_FILE_MB * 1024 * 1024) { toast(`"${f.name}" ใหญ่เกิน ${CONFIG.MAX_FILE_MB} MB`, true); continue; }
+      btn.disabled = true; btn.textContent = `กำลังแนบ ${f.name}…`;
+      try {
+        const data = await toBase64(f);
+        const res = await api('upload', { row: r.row, file: { name: f.name, type: f.type, data } });
+        r.files = res.files;
+        toast(`แนบไฟล์ "${f.name}" แล้ว`);
+      } catch {}
+    }
+    render();
+  };
+  input.click();
+}
+ 
+function toBase64(file) {
+  return new Promise((ok, bad) => {
+    const rd = new FileReader();
+    rd.onload = () => ok(String(rd.result).split(',')[1]);
+    rd.onerror = () => bad(rd.error);
+    rd.readAsDataURL(file);
+  });
+}
+ 
+function openDialog(r = null) {
+  state.editingRow = r ? r.row : null;
+  const f = $('dlgForm');
+  f.reset();
+  $('dlgTitle').textContent = r ? `แก้ไขบันทึก ลำดับ ${r.no}` : 'เพิ่มบันทึก';
+  if (r) {
+    f.term.value = r.term; f.year.value = r.year; f.subject.value = r.subject;
+    f.memoNo.value = r.memoNo; f.memoDate.value = r.memoDateISO;
+    f.status.value = r.status; f.note1.value = r.note1; f.note2.value = r.note2;
+  } else {
+    const last = state.records[state.records.length - 1];
+    if (last) { f.term.value = last.term; f.year.value = last.year; }
+    f.memoDate.value = new Date().toLocaleDateString('sv-SE');
+  }
+  f.querySelectorAll('[data-part="reg"]').forEach(el => el.disabled = !canReg());
+  f.querySelectorAll('input[data-part="eval"],select[data-part="eval"],textarea[data-part="eval"]')
+    .forEach(el => el.disabled = !canEval());
+  f.querySelectorAll('.section-eval, label[data-part="eval"]').forEach(el => el.hidden = !r);
+  $('dlg').showModal();
+}
+ 
+$('addBtn').onclick = () => openDialog();
+$('dlgCancel').onclick = () => $('dlg').close();
+ 
+$('dlgForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.currentTarget;
+  const record = {};
+  f.querySelectorAll('[name]').forEach(el => { if (!el.disabled && !el.closest('[hidden]')) record[el.name] = el.value.trim(); });
+  const btn = $('dlgSave');
+  btn.disabled = true; btn.textContent = 'กำลังบันทึก…';
+  try {
+    if (state.editingRow) await api('update', { row: state.editingRow, record });
+    else await api('add', { record });
+    $('dlg').close();
+    toast(state.editingRow ? 'บันทึกการแก้ไขแล้ว' : 'เพิ่มบันทึกแล้ว');
+    loadRecords();
+  } catch {}
+  btn.disabled = false; btn.textContent = 'บันทึก';
+});
+ 
+let toastTimer;
+function toast(msg, isError = false) {
+  const t = $('toast');
+  t.textContent = msg; t.className = 'toast' + (isError ? ' error' : ''); t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.hidden = true, isError ? 6000 : 2500);
+}
+</script>
+</body>
+</html>
+ 
