@@ -6,308 +6,465 @@
 <title>แบบติดตามเอกสาร งานทะเบียนวัดผล</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600&family=Mitr:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://accounts.google.com/gsi/client" async onload="init()"></script>
 <style>
   :root {
-    --navy: #16325c;
-    --navy-2: #1f4e8c;
-    --blue: #2f6fb5;
-    --sky: #eaf2fb;
-    --sky-2: #d5e5f6;
-    --grey-50: #f5f7fa;
-    --grey-100: #eceff4;
-    --line: #d8dfe8;
-    --text: #1c2533;
-    --muted: #5b6878;
-    --white: #ffffff;
-    --dot-ok: #2e7d4f;
-    --dot-warn: #c08a1e;
-    --dot-bad: #c0392b;
-    --dot-none: #9aa6b5;
+    --navy: #0b2545;
+    --navy-2: #13315c;
+    --ink: #1d4e89;
+    --ink-soft: #e4edf8;
+    --paper: #ffffff;
+    --desk: #eef2f7;
+    --rule: #d6dee8;
+    --text: #0f172a;
+    --muted: #475569;
+    --red: #b3261e;
+    --amber: #9a6700;
+    --none: #94a3b8;
+    --serif: "Mitr", "Anuphan", "Leelawadee UI", sans-serif; /* หัวข้อ: โค้งมน เป็นกันเอง */
+    --sans: "Anuphan", "Leelawadee UI", "Tahoma", sans-serif; /* เนื้อหา: อ่านง่าย */
+    --ease: 180ms ease;
+    --z-drawer: 30;
+    --z-toast: 50;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
-  body {
-    background: var(--grey-50); color: var(--text);
-    font-family: "Sarabun", "Leelawadee UI", "Tahoma", sans-serif;
-    font-size: 16px; line-height: 1.6;
-    line-break: strict;
-  }
+  body { background: var(--desk); color: var(--text); font: 16px/1.6 var(--sans); line-break: strict; }
   button, input, select, textarea { font: inherit; color: inherit; }
-  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; }
+  :focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
   [hidden] { display: none !important; }
+  button, a, select { transition: color var(--ease), background-color var(--ease), border-color var(--ease); }
+  button:not(:disabled), select:not(:disabled), a { cursor: pointer; }
   .nowrap { white-space: nowrap; }
- 
+  .num { font-variant-numeric: tabular-nums; }
+  .icon { width: 18px; height: 18px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .icon.sm { width: 16px; height: 16px; }
+  .wrap { max-width: 1440px; margin: 0 auto; padding: 0 32px; }
+
   /* ---------- หัวเว็บ ---------- */
-  .masthead { background: var(--navy); color: var(--white); border-bottom: 4px solid var(--blue); }
-  .masthead-inner {
-    max-width: 1600px; margin: 0 auto; padding: 16px 28px;
-    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 32px;
-  }
-  .brand h1 { margin: 0; font-size: 1.4rem; font-weight: 700; letter-spacing: .01em; }
-  .brand p { margin: 2px 0 0; font-size: .95rem; color: #c9d8ec; }
-  .who { display: flex; align-items: center; gap: 14px; font-size: .95rem; }
-  .who .role {
-    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.35);
-    border-radius: 4px; padding: 1px 10px; font-weight: 600; white-space: nowrap;
-  }
+  .masthead { background: var(--navy); color: #fff; }
+  .masthead .wrap { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 32px; padding-top: 20px; padding-bottom: 20px; }
+  .masthead h1 { margin: 0; font: 600 1.5rem/1.3 var(--serif); letter-spacing: .005em; }
+  .masthead p { margin: 2px 0 0; color: #a9bdd8; font-size: .95rem; }
+  .who { display: flex; align-items: center; gap: 12px; font-size: .92rem; }
+  .who .role { border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 0 10px; white-space: nowrap; }
   .who .sign-out {
-    background: none; color: var(--white); border: 1px solid rgba(255,255,255,.55);
-    border-radius: 4px; padding: 4px 12px; cursor: pointer; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px;
+    background: none; color: #fff; border: 1px solid rgba(255,255,255,.35); border-radius: 8px; white-space: nowrap;
   }
-  .who .sign-out:hover { background: rgba(255,255,255,.1); }
- 
-  main { max-width: 1600px; margin: 0 auto; padding: 24px 28px 56px; }
- 
-  /* ---------- หน้าเข้าสู่ระบบ ---------- */
-  .login {
-    max-width: 440px; margin: 10vh auto 0; background: var(--white);
-    border: 1px solid var(--line); border-top: 4px solid var(--navy); border-radius: 6px;
-    padding: 32px 32px 28px; text-align: center;
+  .who .sign-out:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.7); }
+
+  /* ---------- ภาพรวมความคืบหน้า ---------- */
+  .overview { background: var(--paper); border-bottom: 1px solid var(--rule); }
+  .overview .wrap { padding-top: 26px; padding-bottom: 6px; }
+  .headline { margin: 0; font: 600 1.7rem/1.35 var(--serif); color: var(--navy); }
+  .scope { margin: 2px 0 16px; color: var(--muted); font-size: .95rem; }
+  .bar { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: var(--desk); gap: 2px; }
+  .bar span { display: block; height: 100%; transition: flex-grow 400ms ease; min-width: 0; }
+  .t-ok { --tone: var(--ink); } .t-bad { --tone: var(--red); } .t-warn { --tone: var(--amber); } .t-none { --tone: var(--none); }
+  .bar span { background: var(--tone); }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 10px -10px 0; }
+  .legend button {
+    display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 10px;
+    background: none; border: 0; border-bottom: 3px solid transparent; color: var(--muted);
   }
-  .login h2 { margin: 0 0 6px; font-size: 1.3rem; color: var(--navy); }
-  .login p { margin: 0 0 24px; color: var(--muted); }
+  .legend button:hover { color: var(--navy); }
+  .legend button[aria-pressed="true"] { color: var(--navy); border-bottom-color: var(--navy); font-weight: 600; }
+  .legend .sw { width: 10px; height: 10px; border-radius: 50%; background: var(--tone, var(--navy)); }
+  .legend .n { font-variant-numeric: tabular-nums; color: var(--text); font-weight: 600; }
+
+  main.wrap { padding-top: 22px; padding-bottom: 64px; }
+
+  /* ---------- เข้าสู่ระบบ ---------- */
+  .login { max-width: 460px; margin: 9vh auto 0; }
+  .login .sheet-mini { background: var(--paper); border-radius: 12px; padding: 40px 36px 34px; box-shadow: 0 1px 2px rgba(11,37,69,.08), 0 18px 40px -18px rgba(11,37,69,.35); text-align: center; }
+  .login h2 { margin: 0 0 4px; font: 600 1.6rem/1.3 var(--serif); color: var(--navy); }
+  .login p { margin: 0 0 26px; color: var(--muted); }
   .login .gbtn { display: flex; justify-content: center; min-height: 44px; }
-  .login .error { margin-top: 18px; color: var(--dot-bad); font-weight: 600; }
- 
-  /* ---------- แผงตัวกรอง ---------- */
-  .panel {
-    background: var(--white); border: 1px solid var(--line); border-radius: 6px;
-    padding: 16px 20px; margin-bottom: 16px;
-    display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: end;
-  }
-  .field { display: flex; flex-direction: column; gap: 4px; font-size: .88rem; color: var(--muted); font-weight: 500; }
+  .login .error { margin-top: 18px; color: var(--red); font-weight: 500; }
+
+  /* ---------- ตัวกรอง ---------- */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px 12px; align-items: end; margin-bottom: 16px; }
+  .field { display: flex; flex-direction: column; gap: 3px; font-size: .86rem; color: var(--muted); }
   .field input, .field select {
-    border: 1px solid var(--line); border-radius: 4px; padding: 7px 10px;
-    background: var(--white); color: var(--text); min-width: 150px; height: 40px;
+    height: 42px; border: 1px solid var(--rule); border-radius: 8px; padding: 0 12px;
+    background: var(--paper); color: var(--text); min-width: 140px;
   }
-  .field input:focus, .field select:focus { border-color: var(--blue); }
-  .field.search { flex: 1 1 280px; }
-  .field.search input { width: 100%; }
-  .panel .actions { display: flex; gap: 10px; margin-left: auto; }
- 
+  .field input:focus, .field select:focus, .grid :is(input,select,textarea):focus { border-color: var(--ink); outline: none; box-shadow: 0 0 0 3px var(--ink-soft); }
+  .field.search { flex: 1 1 320px; }
+  .search-box { position: relative; display: block; }
+  .search-box input { width: 100%; padding-left: 38px; }
+  .search-box .icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .toolbar .actions { display: flex; gap: 8px; margin-left: auto; }
   .btn {
-    height: 40px; padding: 0 18px; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap;
-    border: 1px solid var(--navy); background: var(--navy); color: var(--white);
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    height: 42px; padding: 0 18px; border-radius: 8px; font-weight: 500; white-space: nowrap;
+    border: 1px solid var(--ink); background: var(--ink); color: #fff;
   }
   .btn:hover { background: var(--navy-2); border-color: var(--navy-2); }
-  .btn.secondary { background: var(--white); color: var(--navy); border-color: var(--line); }
-  .btn.secondary:hover { background: var(--sky); border-color: var(--sky-2); }
+  .btn.ghost { background: var(--paper); color: var(--navy); border-color: var(--rule); }
+  .btn.ghost:hover { border-color: var(--navy); }
   .btn:disabled { opacity: .55; cursor: wait; }
- 
-  .summary { margin: 0 2px 10px; color: var(--muted); font-size: .92rem; }
- 
-  /* ---------- ตาราง ---------- */
-  .table-wrap { overflow-x: auto; background: var(--white); border: 1px solid var(--line); border-radius: 6px; }
-  table { border-collapse: collapse; width: 100%; min-width: 1320px; }
-  th, td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
-  thead th { font-weight: 600; color: var(--navy); white-space: nowrap; line-height: 1.4; }
-  thead .group th {
-    text-align: center; font-size: 1.02rem; padding: 10px; border-bottom: 2px solid var(--navy);
-  }
-  thead .cols th { font-size: .92rem; vertical-align: bottom; border-bottom: 1px solid var(--sky-2); }
-  .reg { background: var(--sky); }
-  .eval { background: var(--grey-100); }
-  .manage { background: var(--grey-50); }
-  .sep { border-left: 1px solid var(--line); }
-  th.center, td.center { text-align: center; }
- 
-  tbody tr:nth-child(even) td { background: #fafbfd; }
-  tbody tr:hover td { background: var(--sky); }
+
+  /* ---------- ตารางทะเบียน ---------- */
+  .ledger { background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; overflow-x: auto; }
+  table { width: 100%; min-width: 1100px; border-collapse: collapse; }
+  th, td { padding: 14px 16px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
+  thead th { font-weight: 600; font-size: .88rem; color: var(--navy); white-space: nowrap; line-height: 1.4; }
+  thead .group th { font: 600 .98rem/1.4 var(--serif); padding: 10px 16px; border-bottom: 1px solid var(--rule); }
+  thead .cols th { vertical-align: bottom; border-bottom: 2px solid var(--navy); }
+  .g-reg { background: var(--ink-soft); }
+  .g-eval { background: #eef1f5; }
+  .sep { border-left: 1px solid var(--rule); }
+  .center { text-align: center; }
+  tbody tr:hover td { background: #f8fafc; }
   tbody tr:last-child td { border-bottom: 0; }
- 
-  td.subject { min-width: 300px; }
-  td.memo { color: var(--navy); font-weight: 600; }
-  td.note { white-space: pre-wrap; font-size: .95rem; color: var(--text); min-width: 140px; }
- 
-  .files { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; min-width: 190px; }
-  .files a { color: var(--navy-2); text-decoration: none; overflow-wrap: break-word; max-width: 240px; }
-  .files a:hover { text-decoration: underline; }
-  .nofile { color: var(--dot-none); font-size: .92rem; }
+  .memo-no { font: 600 1.05rem/1.3 var(--serif); color: var(--navy); }
+  .sub { display: block; font-size: .85rem; color: var(--muted); }
+  td.subject { min-width: 300px; max-width: 480px; }
+  td.subject .title { font-weight: 500; }
+
+  .files { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; max-width: 240px; }
+  .files a { display: flex; align-items: center; gap: 6px; max-width: 100%; min-height: 28px; color: var(--ink); text-decoration: none; }
+  .files a span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .files a:hover span { text-decoration: underline; }
+  .nofile { color: var(--muted); font-size: .9rem; }
   .attach {
-    border: 1px solid var(--sky-2); background: var(--white); color: var(--navy-2);
-    border-radius: 4px; padding: 2px 12px; cursor: pointer; font-size: .9rem; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px; min-height: 34px; padding: 0 12px;
+    background: var(--paper); border: 1px dashed #b7c6d8; border-radius: 8px; color: var(--navy); font-size: .88rem; white-space: nowrap;
   }
-  .attach:hover { background: var(--sky); }
-  .attach:disabled { cursor: wait; opacity: .6; }
- 
-  /* สถานะ: ใช้จุดสีเล็ก ๆ บอกความหมาย โทนหลักยังเป็นเทา-น้ำเงิน */
+  .attach:hover { background: var(--ink-soft); border-color: var(--ink); }
+  .attach:disabled { cursor: wait; color: var(--muted); }
+
   .status {
-    --dot: var(--dot-none);
-    display: inline-block; white-space: nowrap; font-size: .92rem; font-weight: 500;
-    border: 1px solid var(--line); border-radius: 4px; padding: 3px 12px 3px 26px;
-    background: radial-gradient(circle at 13px 50%, var(--dot) 4px, transparent 5px), var(--white);
+    display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; font-size: .9rem;
+    border: 1px solid var(--rule); border-radius: 8px; padding: 5px 12px; background: var(--paper);
   }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--tone, var(--none)); }
   select.status {
-    appearance: none; -webkit-appearance: none; cursor: pointer; padding-right: 30px; min-width: 170px;
+    display: inline-block; appearance: none; -webkit-appearance: none; min-width: 180px; padding: 5px 30px 5px 26px;
     background:
-      radial-gradient(circle at 13px 50%, var(--dot) 4px, transparent 5px),
-      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%2316325c' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 11px center,
-      var(--white);
+      radial-gradient(circle at 13px 50%, var(--tone, var(--none)) 4px, transparent 5px),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%230b2545' stroke-width='1.6'/%3E%3C/svg%3E") no-repeat right 11px center,
+      var(--paper);
   }
-  select.status:hover { border-color: var(--blue); }
-  .status.ok { --dot: var(--dot-ok); }
-  .status.warn { --dot: var(--dot-warn); }
-  .status.bad { --dot: var(--dot-bad); }
- 
+  select.status::before { content: none; }
+  select.status:hover { border-color: var(--navy); }
+
+  td.notes { min-width: 200px; max-width: 320px; font-size: .92rem; }
+  td.notes p { margin: 0; white-space: pre-wrap; }
+  td.notes p + p { margin-top: 4px; }
+  td.notes .lbl { color: var(--muted); margin-right: 4px; }
   .edit {
-    border: 1px solid var(--line); background: var(--white); color: var(--navy);
-    border-radius: 4px; padding: 4px 14px; cursor: pointer; font-weight: 500; white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 6px; height: 38px; padding: 0 14px;
+    border: 1px solid var(--rule); border-radius: 8px; background: var(--paper); color: var(--navy); white-space: nowrap;
   }
-  .edit:hover { background: var(--navy); color: var(--white); border-color: var(--navy); }
- 
-  .empty, .loading { padding: 48px; text-align: center; color: var(--muted); }
- 
-  /* ---------- หน้าต่างฟอร์ม ---------- */
-  dialog { border: 0; border-radius: 6px; padding: 0; width: min(580px, 94vw); box-shadow: 0 18px 48px rgba(22,50,92,.25); }
-  dialog::backdrop { background: rgba(22, 50, 92, .45); }
-  .dlg-head { padding: 16px 24px; background: var(--navy); color: var(--white); }
-  .dlg-head h2 { margin: 0; font-size: 1.15rem; font-weight: 600; }
-  form.dlg-body { padding: 20px 24px 22px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
-  form.dlg-body label { display: flex; flex-direction: column; gap: 4px; font-size: .9rem; color: var(--muted); font-weight: 500; }
-  form.dlg-body .full { grid-column: 1 / -1; }
-  form.dlg-body input, form.dlg-body select, form.dlg-body textarea {
-    border: 1px solid var(--line); border-radius: 4px; padding: 8px 10px; color: var(--text); background: var(--white);
+  .edit:hover { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+  .empty { padding: 64px 20px; text-align: center; color: var(--muted); }
+  .empty strong { display: block; font: 600 1.15rem/1.4 var(--serif); color: var(--navy); margin-bottom: 4px; }
+  .sk { display: block; height: 12px; border-radius: 6px; background: linear-gradient(90deg, #e9eef4 25%, #f5f7fa 50%, #e9eef4 75%); background-size: 200% 100%; animation: sk 1.2s linear infinite; }
+  .sk + .sk { margin-top: 8px; }
+  @keyframes sk { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+  .footnote { margin: 10px 2px 0; color: var(--muted); font-size: .88rem; }
+
+  /* ---------- แผงรายละเอียด ---------- */
+  dialog.drawer {
+    margin: 0 0 0 auto; height: 100%; max-height: 100%; width: min(660px, 100vw); max-width: 100vw;
+    border: 0; padding: 0; background: var(--desk); color: var(--text); z-index: var(--z-drawer);
+    box-shadow: -16px 0 48px rgba(11,37,69,.22);
   }
-  form.dlg-body input:focus, form.dlg-body select:focus, form.dlg-body textarea:focus { border-color: var(--blue); }
-  form.dlg-body :disabled { background: var(--grey-50); color: var(--muted); }
-  .section-title {
-    grid-column: 1 / -1; margin: 4px 0 -4px; padding-bottom: 4px;
-    border-bottom: 1px solid var(--sky-2); color: var(--navy); font-weight: 600;
+  dialog.drawer::backdrop { background: rgba(11, 37, 69, .45); }
+  dialog.drawer[open] { display: flex; flex-direction: column; animation: slide 220ms ease-out; }
+  @keyframes slide { from { transform: translateX(28px); opacity: .5; } to { transform: none; opacity: 1; } }
+  .drawer-top { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px 10px 28px; background: var(--navy); color: #fff; }
+  .drawer-top h2 { margin: 0; font: 600 1.02rem/1.4 var(--sans); }
+  .close { width: 44px; height: 44px; display: grid; place-items: center; background: none; border: 0; border-radius: 8px; color: #fff; }
+  .close:hover { background: rgba(255,255,255,.12); }
+  .close .icon { width: 22px; height: 22px; }
+  form.drawer-body { flex: 1; overflow-y: auto; padding: 28px 28px 32px; }
+
+  /* แผ่นบันทึกข้อความ: จุดเด่นของหน้า */
+  .memo {
+    position: relative; background: var(--paper); border-radius: 10px; padding: 34px 40px 36px;
+    box-shadow: 0 1px 2px rgba(11,37,69,.08), 0 22px 44px -20px rgba(11,37,69,.4);
+    font-family: var(--serif); margin-bottom: 30px; overflow: hidden;
   }
-  .dlg-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
- 
+  .memo:focus { outline: none; }
+  .memo h3 { margin: 0 0 22px; text-align: center; font: 600 1.75rem/1.3 var(--serif); color: var(--text); letter-spacing: .01em; }
+  .memo .line { display: flex; gap: 10px; align-items: baseline; margin: 0 0 12px; line-height: 1.7; }
+  .memo .line.split { gap: 24px; }
+  .memo .line.split > div { display: flex; gap: 10px; align-items: baseline; flex: 1; min-width: 0; }
+  .memo .k { font-weight: 600; white-space: nowrap; }
+  .memo .v {
+    flex: 1; min-width: 0; padding: 0 4px 1px; font-weight: 500; color: var(--navy);
+    border-bottom: 1.5px dotted #8a9bb2; overflow-wrap: break-word;
+  }
+  .memo .v:empty::before { content: "\00a0"; }
+  .memo .rule { height: 1px; background: var(--text); margin: 18px 0 0; opacity: .8; }
+
+  .memo .foot { height: 64px; }
+  .stamp {
+    position: absolute; right: 34px; bottom: 22px; transform: rotate(-9deg);
+    padding: 8px 16px 6px; border: 3px solid var(--tone); outline: 1.5px solid var(--tone); outline-offset: 3px;
+    border-radius: 10px; color: var(--tone); text-align: center; line-height: 1.2;
+    font: 600 1.25rem/1.25 var(--serif); letter-spacing: .02em; white-space: nowrap;
+    opacity: .82; mix-blend-mode: multiply; filter: url(#ink); pointer-events: none;
+  }
+  .stamp small { display: block; font: 600 .72rem/1.3 var(--sans); letter-spacing: .04em; margin-top: 2px; }
+  .stamp.thud { animation: thud 260ms cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes thud { from { transform: rotate(-9deg) scale(1.45); opacity: 0; } to { transform: rotate(-9deg) scale(1); opacity: .82; } }
+
+  .section { margin-top: 26px; }
+  .section h4 { margin: 0 0 12px; display: flex; align-items: center; gap: 10px; font: 600 1rem/1.4 var(--serif); color: var(--navy); }
+  .section h4::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 14px; }
+  .grid .full { grid-column: 1 / -1; }
+  .grid label { display: flex; flex-direction: column; gap: 3px; font-size: .86rem; color: var(--muted); }
+  .grid input, .grid select, .grid textarea { border: 1px solid var(--rule); border-radius: 8px; padding: 9px 12px; color: var(--text); background: var(--paper); }
+  .grid :disabled { background: #f1f4f8; color: var(--muted); }
+  .drawer .files { max-width: none; }
+  .drawer .files a span { white-space: normal; overflow-wrap: break-word; }
+
+  .history { list-style: none; margin: 0; padding: 0; }
+  .history li { position: relative; padding: 0 0 16px 22px; font-size: .92rem; }
+  .history li::before { content: ""; position: absolute; left: 3px; top: 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--ink); }
+  .history li::after { content: ""; position: absolute; left: 6.5px; top: 20px; bottom: 2px; width: 1px; background: #b7c6d8; }
+  .history li:last-child::after { display: none; }
+  .history .meta { color: var(--muted); font-size: .84rem; }
+  .history .meta strong { color: var(--navy); font-weight: 500; }
+  .history li.muted { padding-left: 0; color: var(--muted); }
+  .history li.muted::before, .history li.muted::after { display: none; }
+
+  .drawer-foot { padding: 14px 28px; border-top: 1px solid var(--rule); background: var(--paper); display: flex; justify-content: flex-end; gap: 10px; }
+
   .toast {
-    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
-    background: var(--navy); color: var(--white); padding: 10px 20px; border-radius: 4px; max-width: 90vw;
-    box-shadow: 0 8px 24px rgba(22,50,92,.3);
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: var(--z-toast);
+    background: var(--navy); color: #fff; padding: 11px 20px; border-radius: 8px; max-width: 90vw;
+    box-shadow: 0 10px 28px rgba(11,37,69,.35);
   }
-  .toast.error { background: var(--dot-bad); }
- 
+  .toast.error { background: var(--red); }
+
   /* ---------- มือถือ ---------- */
-  @media (max-width: 800px) {
-    .masthead-inner, main { padding-left: 16px; padding-right: 16px; }
-    .brand h1 { font-size: 1.15rem; }
+  @media (max-width: 820px) {
+    .wrap { padding-left: 16px; padding-right: 16px; }
+    .masthead h1 { font-size: 1.2rem; }
+    .who { flex-wrap: wrap; gap: 6px 10px; }
+    .who #whoEmail { flex-basis: 100%; overflow-wrap: anywhere; }
+    .headline { font-size: 1.3rem; }
     .field { flex: 1 1 45%; }
     .field input, .field select { min-width: 0; width: 100%; }
-    .panel .actions { width: 100%; margin-left: 0; }
-    .panel .actions .btn { flex: 1; }
-    .table-wrap { border: 0; background: none; overflow: visible; }
-    table, tbody, tr, td { display: block; min-width: 0; }
+    .toolbar .actions { width: 100%; margin-left: 0; }
+    .toolbar .actions .btn { flex: 1; }
+    .btn, .edit, .attach, select.status, .field input, .field select, .grid input, .grid select { min-height: 44px; }
+    .ledger { border: 0; background: none; overflow: visible; }
+    table, tbody, tr, td { display: block; min-width: 0; max-width: none; }
     thead { display: none; }
-    tbody tr { background: var(--white); border: 1px solid var(--line); border-top: 3px solid var(--navy); border-radius: 6px; margin-bottom: 14px; padding: 8px 0; }
-    tbody tr td, tbody tr:nth-child(even) td, tbody tr:hover td { background: none; border: 0; padding: 5px 16px; }
-    td[data-label]::before { content: attr(data-label); display: block; font-size: .8rem; color: var(--muted); font-weight: 400; }
-    .who { flex-wrap: wrap; gap: 8px 10px; font-size: .9rem; }
-    .who #whoEmail { flex-basis: 100%; overflow-wrap: anywhere; }
-    td.sep { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 10px; }
-    td.center { text-align: left; }
-    td.subject, td.note, .files { min-width: 0; }
-    form.dlg-body { grid-template-columns: 1fr; }
+    tbody tr { background: var(--paper); border: 1px solid var(--rule); border-top: 3px solid var(--navy); border-radius: 12px; margin-bottom: 14px; padding: 10px 0; }
+    tbody tr td, tbody tr:hover td { background: none; border: 0; padding: 5px 16px; }
+    td[data-label]::before { content: attr(data-label); display: block; font-size: .78rem; color: var(--muted); }
+    td.sep { border-top: 1px solid var(--rule); margin-top: 6px; padding-top: 10px; }
+    .center { text-align: left; }
+    .files { max-width: none; }
+    form.drawer-body { padding: 18px 14px 24px; }
+    .memo { padding: 26px 20px 28px; }
+    .memo h3 { font-size: 1.4rem; margin-bottom: 18px; }
+    .memo .line.split { flex-direction: column; gap: 12px; align-items: stretch; }
+    .stamp { right: 16px; bottom: 18px; font-size: 1.05rem; padding: 6px 12px 4px; }
+    .grid { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    dialog.drawer[open], .stamp.thud, .sk { animation: none; }
+    * { transition: none !important; }
   }
 </style>
 </head>
 <body>
- 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- ขอบหมึกตรายางไม่เรียบ เหมือนประทับจริง -->
+  <filter id="ink"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="3"/><feDisplacementMap in="SourceGraphic" scale="1.6"/></filter>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></symbol>
+  <symbol id="i-pencil" viewBox="0 0 24 24"><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></symbol>
+</svg>
+
 <header class="masthead">
-  <div class="masthead-inner">
-    <div class="brand">
-      <h1>แบบติดตามเอกสาร การดำเนินการ งานทะเบียนวัดผล</h1>
+  <div class="wrap">
+    <div>
+      <h1><span class="nowrap">แบบติดตามเอกสาร</span> <span class="nowrap">การดำเนินการ</span> <span class="nowrap">งานทะเบียนวัดผล</span></h1>
       <p>วิทยาลัยพณิชยการเชตุพน</p>
     </div>
     <div class="who" id="who" hidden>
       <span id="whoEmail"></span>
       <span class="role" id="whoRole"></span>
-      <button class="sign-out" id="signOutBtn">ออกจากระบบ</button>
+      <button class="sign-out" id="signOutBtn"><svg class="icon sm"><use href="#i-logout"/></svg>ออกจากระบบ</button>
     </div>
   </div>
 </header>
- 
-<main>
+
+<section class="overview" id="overview" hidden aria-label="ภาพรวมความคืบหน้า">
+  <div class="wrap">
+    <h2 class="headline" id="headline"></h2>
+    <p class="scope" id="scope"></p>
+    <div class="bar" id="bar" role="img"></div>
+    <div class="legend" id="legend"></div>
+  </div>
+</section>
+
+<main class="wrap">
   <section class="login" id="loginView" hidden>
-    <h2>เข้าสู่ระบบ</h2>
-    <p>ใช้บัญชี Google ที่ได้รับสิทธิ์จากงานทะเบียนวัดผล</p>
-    <div class="gbtn" id="gbtn"></div>
-    <div class="error" id="loginError" role="alert"></div>
+    <div class="sheet-mini">
+      <h2>เข้าสู่ระบบ</h2>
+      <p>ใช้บัญชี Google ที่ได้รับสิทธิ์จากงานทะเบียนวัดผล</p>
+      <div class="gbtn" id="gbtn"></div>
+      <div class="error" id="loginError" role="alert"></div>
+    </div>
   </section>
- 
+
   <section id="appView" hidden>
-    <div class="panel">
-      <label class="field search">ค้นหา
-        <input id="fSearch" type="search" placeholder="ชื่อเรื่อง หรือเลขที่บันทึก">
+    <div class="toolbar">
+      <label class="field search" for="fSearch">ค้นหา
+        <span class="search-box">
+          <svg class="icon sm" aria-hidden="true"><use href="#i-search"/></svg>
+          <input id="fSearch" type="search" placeholder="ชื่อเรื่อง หรือเลขที่บันทึก">
+        </span>
       </label>
-      <label class="field">ปีการศึกษา <select id="fYear"></select></label>
-      <label class="field">ภาคเรียน <select id="fTerm"></select></label>
-      <label class="field">สถานะ <select id="fStatus"></select></label>
+      <label class="field" for="fYear">ปีการศึกษา <select id="fYear"></select></label>
+      <label class="field" for="fTerm">ภาคเรียน <select id="fTerm"></select></label>
       <div class="actions">
-        <button class="btn secondary" id="reloadBtn">โหลดข้อมูลใหม่</button>
-        <button class="btn" id="addBtn" hidden>เพิ่มบันทึก</button>
+        <button class="btn ghost" id="reloadBtn"><svg class="icon"><use href="#i-refresh"/></svg>โหลดข้อมูลใหม่</button>
+        <button class="btn" id="addBtn" hidden><svg class="icon"><use href="#i-plus"/></svg>เพิ่มบันทึก</button>
       </div>
     </div>
- 
-    <p class="summary" id="summary"></p>
- 
-    <div class="table-wrap">
+
+    <div class="ledger">
       <table>
         <thead>
           <tr class="group">
-            <th class="reg" colspan="6">งานทะเบียน</th>
-            <th class="eval sep" colspan="3">งานวัดผล</th>
-            <th class="manage sep" rowspan="2" style="vertical-align:bottom;border-bottom:1px solid var(--sky-2)">จัดการ</th>
+            <th class="g-reg" colspan="4">งานทะเบียน</th>
+            <th class="g-eval sep" colspan="2">งานวัดผล</th>
+            <th class="sep" rowspan="2" style="vertical-align:bottom;border-bottom:2px solid var(--navy)">จัดการ</th>
           </tr>
           <tr class="cols">
-            <th class="reg center">ลำดับ</th>
-            <th class="reg center">ภาคเรียน/<br>ปีการศึกษา</th>
-            <th class="reg">บันทึกเรื่อง</th>
-            <th class="reg center">เลขที่<br>บันทึก</th>
-            <th class="reg">วันที่บันทึก</th>
-            <th class="reg">ไฟล์บันทึกข้อความ<br>และเอกสาร</th>
-            <th class="eval sep">สถานะการบันทึก<br>ผลลงระบบ</th>
-            <th class="eval">หมายเหตุ 1</th>
-            <th class="eval">หมายเหตุ 2</th>
+            <th class="g-reg center">ลำดับ</th>
+            <th class="g-reg">เลขที่บันทึก</th>
+            <th class="g-reg">บันทึกเรื่อง</th>
+            <th class="g-reg">ไฟล์แนบ</th>
+            <th class="g-eval sep">สถานะการบันทึกผลลงระบบ</th>
+            <th class="g-eval">หมายเหตุ</th>
           </tr>
         </thead>
         <tbody id="rows"></tbody>
       </table>
     </div>
+    <p class="footnote" id="footnote"></p>
   </section>
 </main>
- 
-<dialog id="dlg">
-  <div class="dlg-head"><h2 id="dlgTitle">เพิ่มบันทึก</h2></div>
-  <form class="dlg-body" id="dlgForm" method="dialog">
-    <div class="section-title">งานทะเบียน</div>
-    <label>ภาคเรียนที่ <input name="term" inputmode="numeric" data-part="reg"></label>
-    <label>ปีการศึกษา <input name="year" inputmode="numeric" data-part="reg"></label>
-    <label class="full">บันทึกเรื่อง <input name="subject" required data-part="reg"></label>
-    <label>เลขที่บันทึก <input name="memoNo" placeholder="เช่น 0003" data-part="reg"></label>
-    <label>วันที่บันทึก <input name="memoDate" type="date" data-part="reg"></label>
-    <div class="section-title" data-part="eval">งานวัดผล</div>
-    <label class="full" data-part="eval">สถานะการบันทึกผลลงระบบ <select name="status" data-part="eval"></select></label>
-    <label class="full" data-part="eval">หมายเหตุ 1 <textarea name="note1" rows="2" data-part="eval"></textarea></label>
-    <label class="full" data-part="eval">หมายเหตุ 2 <textarea name="note2" rows="2" data-part="eval"></textarea></label>
-    <div class="dlg-actions">
-      <button type="button" class="btn secondary" id="dlgCancel">ยกเลิก</button>
-      <button type="submit" class="btn" id="dlgSave">บันทึก</button>
-    </div>
+
+<dialog class="drawer" id="drawer" aria-labelledby="drawerTitle">
+  <div class="drawer-top">
+    <h2 id="drawerTitle">รายละเอียดบันทึก</h2>
+    <button class="close" id="drawerClose" aria-label="ปิดแผงรายละเอียด"><svg class="icon"><use href="#i-x"/></svg></button>
+  </div>
+  <form class="drawer-body" id="form">
+    <article class="memo" aria-label="ตัวอย่างบันทึกข้อความ" tabindex="-1" autofocus>
+      <div class="stamp" id="stamp" hidden></div>
+      <h3>บันทึกข้อความ</h3>
+      <p class="line"><span class="k">ส่วนราชการ</span><span class="v"><span class="nowrap">งานทะเบียน</span> <span class="nowrap">วิทยาลัยพณิชยการเชตุพน</span></span></p>
+      <div class="line split">
+        <div><span class="k">ที่</span><span class="v num" id="mNo"></span></div>
+        <div><span class="k">วันที่</span><span class="v" id="mDate"></span></div>
+      </div>
+      <p class="line"><span class="k">เรื่อง</span><span class="v" id="mSubject"></span></p>
+      <p class="line"><span class="k">ภาคเรียนที่</span><span class="v num" id="mTerm"></span><span class="k">ปีการศึกษา</span><span class="v num" id="mYear"></span></p>
+      <div class="rule"></div>
+      <div class="foot"></div>
+    </article>
+
+    <section class="section">
+      <h4>งานทะเบียน</h4>
+      <div class="grid">
+        <label>ภาคเรียนที่ <input name="term" inputmode="numeric" data-part="reg"></label>
+        <label>ปีการศึกษา <input name="year" inputmode="numeric" data-part="reg"></label>
+        <label class="full">บันทึกเรื่อง <input name="subject" required data-part="reg"></label>
+        <label>เลขที่บันทึก <input name="memoNo" placeholder="เช่น 0003" data-part="reg"></label>
+        <label>วันที่บันทึก <input name="memoDate" type="date" data-part="reg"></label>
+      </div>
+    </section>
+
+    <section class="section" id="fileBlock">
+      <h4>ไฟล์บันทึกข้อความและเอกสาร</h4>
+      <div class="files" id="drawerFiles"></div>
+    </section>
+
+    <section class="section" id="evalBlock">
+      <h4>งานวัดผล</h4>
+      <div class="grid">
+        <label class="full">สถานะการบันทึกผลลงระบบ <select name="status" data-part="eval"></select></label>
+        <label class="full">หมายเหตุ 1 <textarea name="note1" rows="2" data-part="eval"></textarea></label>
+        <label class="full">หมายเหตุ 2 <textarea name="note2" rows="2" data-part="eval"></textarea></label>
+      </div>
+    </section>
+
+    <section class="section" id="historyBlock">
+      <h4>ประวัติการแก้ไข</h4>
+      <ol class="history" id="historyList"></ol>
+    </section>
   </form>
+  <div class="drawer-foot">
+    <button type="button" class="btn ghost" id="cancelBtn">ยกเลิก</button>
+    <button type="submit" form="form" class="btn" id="saveBtn">บันทึก</button>
+  </div>
 </dialog>
- 
+
 <div class="toast" id="toast" role="status" hidden></div>
- 
+
 <script>
-/* ===== ตั้งค่า: ใส่ค่าจริงของคุณ ===== */
+/* ===== ตั้งค่า ===== */
 const CONFIG = {
   API_URL: 'https://script.google.com/macros/s/AKfycbyREfAJDVW2iT6vL3L23ka-GeI36hHuYmN0PwYKn7NtOgWS4o4Ta9ZrLxzFcVNNSPnhaQ/exec',
   CLIENT_ID: '277716951356-3ma5t20ke5f8g5l5jh6stbup2ssunja2.apps.googleusercontent.com',
   MAX_FILE_MB: 20,
 };
 const ROLE_LABEL = { admin: 'ผู้ดูแลระบบ', 'ทะเบียน': 'งานทะเบียน', 'วัดผล': 'งานวัดผล', 'ดู': 'ดูอย่างเดียว' };
- 
-const state = { token: null, me: null, records: [], editingRow: null };
+const NONE = '__none';
+
+const state = { token: null, me: null, records: [], editing: null, tab: '' };
 const $ = id => document.getElementById(id);
- 
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+function icon(name, cls = 'icon sm') {
+  const svg = document.createElementNS(SVGNS, 'svg');
+  svg.setAttribute('class', cls); svg.setAttribute('aria-hidden', 'true');
+  const use = document.createElementNS(SVGNS, 'use');
+  use.setAttribute('href', '#i-' + name);
+  svg.append(use);
+  return svg;
+}
+
+function h(tag, attrs = {}, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) el.setAttribute(k, v === true ? '' : v);
+  }
+  kids.flat().forEach(k => k != null && k !== '' && el.append(k));
+  return el;
+}
+
+function skeletonRows(n = 4) {
+  const sk = w => `<span class="sk" style="width:${w}%"></span>`;
+  return Array.from({ length: n }, () =>
+    `<tr><td>${sk(60)}</td><td>${sk(70)}${sk(50)}</td><td>${sk(90)}${sk(40)}</td><td>${sk(80)}</td><td>${sk(75)}</td><td>${sk(60)}</td><td>${sk(70)}</td></tr>`).join('');
+}
+
 /* ---------- เข้าสู่ระบบ ---------- */
 function init() {
   google.accounts.id.initialize({
@@ -319,54 +476,54 @@ function init() {
   if (saved && !isExpired(saved)) { state.token = saved; start(); }
   else showLogin();
 }
- 
+
 function isExpired(jwt) {
   try {
     const p = JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
     return p.exp * 1000 < Date.now() + 60000;
   } catch { return true; }
 }
- 
+
 function setToken(t) {
   state.token = t;
   try { sessionStorage.setItem('idToken', t); } catch {}
 }
- 
+
 function showLogin(message = '') {
-  state.token = null;
+  state.token = null; state.me = null;
   try { sessionStorage.removeItem('idToken'); } catch {}
-  $('appView').hidden = true; $('who').hidden = true; $('loginView').hidden = false;
+  $('appView').hidden = true; $('who').hidden = true; $('overview').hidden = true; $('loginView').hidden = false;
   $('loginError').textContent = message;
   $('gbtn').innerHTML = '';
   google.accounts.id.renderButton($('gbtn'), { theme: 'outline', size: 'large', text: 'signin_with', locale: 'th' });
   if (!message) google.accounts.id.prompt();
 }
- 
+
 $('signOutBtn').onclick = () => { google.accounts.id.disableAutoSelect(); showLogin(); };
- 
+
 async function start() {
   $('loginView').hidden = true;
   $('appView').hidden = false;
-  $('rows').innerHTML = '<tr><td colspan="10" class="loading">กำลังโหลดข้อมูล…</td></tr>';
+  $('rows').innerHTML = skeletonRows();
   let data;
   try { data = await api('init'); } catch {
-    $('rows').innerHTML = '<tr><td colspan="10" class="empty">โหลดข้อมูลไม่สำเร็จ กด "โหลดข้อมูลใหม่" เพื่อลองอีกครั้ง</td></tr>';
+    $('rows').innerHTML = '<tr><td colspan="7" class="empty"><strong>โหลดข้อมูลไม่สำเร็จ</strong>กด "โหลดข้อมูลใหม่" เพื่อลองอีกครั้ง</td></tr>';
     return;
   }
   state.me = data;
   state.records = data.records;
-  $('whoEmail').textContent = state.me.email;
-  $('whoRole').textContent = ROLE_LABEL[state.me.role] || state.me.role;
-  $('who').hidden = false; $('appView').hidden = false;
+  $('whoEmail').textContent = data.email;
+  $('whoRole').textContent = ROLE_LABEL[data.role] || data.role;
+  $('who').hidden = false; $('overview').hidden = false;
   $('addBtn').hidden = !canReg();
-  fillSelect($('dlgForm').status, ['', ...state.me.statuses], v => v || 'ยังไม่ระบุ');
+  fillSelect($('form').status, ['', ...data.statuses], v => v || 'ยังไม่ระบุ');
   buildFilters();
   render();
 }
- 
+
 const canReg = () => ['admin', 'ทะเบียน'].includes(state.me?.role);
 const canEval = () => ['admin', 'วัดผล'].includes(state.me?.role);
- 
+
 /* ---------- เรียก API ---------- */
 async function api(action, body = {}) {
   let json;
@@ -378,7 +535,7 @@ async function api(action, body = {}) {
     });
     json = await res.json();
   } catch (e) {
-    toast('เชื่อมต่อระบบไม่ได้ ตรวจสอบอินเทอร์เน็ตหรือ API_URL', true);
+    toast('เชื่อมต่อระบบไม่ได้ ตรวจสอบอินเทอร์เน็ตแล้วลองอีกครั้ง', true);
     throw e;
   }
   if (!json.ok) {
@@ -388,136 +545,162 @@ async function api(action, body = {}) {
   }
   return json.data;
 }
- 
-/* ---------- ข้อมูล ---------- */
+
 async function loadRecords() {
-  $('summary').textContent = '';
-  $('rows').innerHTML = '<tr><td colspan="10" class="loading">กำลังโหลดข้อมูล…</td></tr>';
-  try { state.records = await api('list'); } catch { $('rows').innerHTML = ''; return; }
-  buildFilters();
-  render();
+  if (!state.me) return start();
+  const btn = $('reloadBtn');
+  btn.disabled = true;
+  try { state.records = await api('list'); buildFilters(); render(); } catch {}
+  btn.disabled = false;
 }
- 
+
+/* ---------- ตัวกรอง ---------- */
 function buildFilters() {
-  const keep = { y: $('fYear').value, t: $('fTerm').value, s: $('fStatus').value };
+  const keep = { y: $('fYear').value, t: $('fTerm').value };
   const uniq = k => [...new Set(state.records.map(r => r[k]).filter(Boolean))].sort();
   fillSelect($('fYear'), ['', ...uniq('year').reverse()], v => v || 'ทั้งหมด');
   fillSelect($('fTerm'), ['', ...uniq('term')], v => v || 'ทั้งหมด');
-  fillSelect($('fStatus'), ['', ...state.me.statuses, '(ยังไม่ระบุ)'], v => v || 'ทั้งหมด');
-  $('fYear').value = keep.y; $('fTerm').value = keep.t; $('fStatus').value = keep.s;
+  $('fYear').value = keep.y; $('fTerm').value = keep.t;
 }
- 
+
 function fillSelect(sel, values, label) {
   sel.innerHTML = '';
   values.forEach(v => sel.append(new Option(label(v), v)));
 }
- 
-['fSearch', 'fYear', 'fTerm', 'fStatus'].forEach(id => $(id).addEventListener('input', render));
-$('reloadBtn').onclick = () => state.me ? loadRecords() : start();
- 
-function filtered() {
+
+['fSearch', 'fYear', 'fTerm'].forEach(id => $(id).addEventListener('input', render));
+$('reloadBtn').onclick = loadRecords;
+
+function baseList() {
   const q = $('fSearch').value.trim().toLowerCase();
-  const y = $('fYear').value, t = $('fTerm').value, s = $('fStatus').value;
+  const y = $('fYear').value, t = $('fTerm').value;
   return state.records.filter(r =>
     (!q || (r.subject + ' ' + r.memoNo).toLowerCase().includes(q)) &&
-    (!y || r.year === y) && (!t || r.term === t) &&
-    (!s || (s === '(ยังไม่ระบุ)' ? !r.status : r.status === s)));
+    (!y || r.year === y) && (!t || r.term === t));
 }
- 
-/* ---------- แสดงผล ---------- */
-function h(tag, attrs = {}, ...kids) {
-  const el = document.createElement(tag);
-  for (const [k, v] of Object.entries(attrs)) {
-    if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
-    else if (v !== false && v != null) el.setAttribute(k, v === true ? '' : v);
-  }
-  kids.flat().forEach(k => k != null && el.append(k));
-  return el;
+
+const matchTab = (r, tab) => !tab || (tab === NONE ? !r.status : r.status === tab);
+
+function tone(s) {
+  if (!s) return 't-none';
+  if (s.includes('แล้ว')) return 't-ok';
+  if (s.includes('เพิ่มเติม') || s.includes('แก้ไข')) return 't-bad';
+  if (s.includes('รอ')) return 't-warn';
+  return 't-none';
 }
- 
-function statusClass(s) {
-  if (!s) return '';
-  if (s.includes('แล้ว')) return 'ok';
-  if (s.includes('เพิ่มเติม') || s.includes('แก้ไข')) return 'bad';
-  if (s.includes('รอ')) return 'warn';
-  return '';
+
+/* ---------- ภาพรวม ---------- */
+function renderOverview(base) {
+  const total = base.length;
+  const done = base.filter(r => tone(r.status) === 't-ok').length;
+  $('headline').innerHTML = '';
+  $('headline').append(total
+    ? h('span', {}, 'ดำเนินการแล้ว ', h('span', { class: 'num' }, String(done)), ` จาก ${total} เรื่อง`)
+    : 'ยังไม่มีบันทึกในช่วงที่เลือก');
+  const y = $('fYear').value, t = $('fTerm').value;
+  $('scope').textContent = y || t
+    ? `ภาคเรียน ${t || 'ทุกภาค'} ปีการศึกษา ${y || 'ทุกปี'}`
+    : 'ทุกภาคเรียนและปีการศึกษา';
+
+  const groups = [...state.me.statuses.map(s => [s, s]), [NONE, 'ยังไม่ระบุ']]
+    .map(([val, label]) => ({ val, label, n: base.filter(r => matchTab(r, val)).length, tone: val === NONE ? 't-none' : tone(val) }));
+
+  const bar = $('bar');
+  bar.innerHTML = '';
+  groups.filter(g => g.n).forEach(g => bar.append(h('span', { class: g.tone, style: `flex-grow:${g.n}`, title: `${g.label} ${g.n} เรื่อง` })));
+  bar.setAttribute('aria-label', groups.map(g => `${g.label} ${g.n}`).join(', '));
+
+  const legend = $('legend');
+  legend.innerHTML = '';
+  const btn = (val, label, n, cls) => h('button', {
+    'aria-pressed': String(state.tab === val), class: cls,
+    onclick: () => { state.tab = state.tab === val && val ? '' : val; render(); },
+  }, cls ? h('span', { class: 'sw' }) : null, label, h('span', { class: 'n' }, String(n)));
+  legend.append(btn('', 'ทั้งหมด', total, ''));
+  groups.forEach(g => { if (g.val !== NONE || g.n || state.tab === NONE) legend.append(btn(g.val, g.label, g.n, g.tone)); });
 }
- 
+
+/* ---------- ตาราง ---------- */
 function render() {
+  const base = baseList();
+  renderOverview(base);
+  const list = base.filter(r => matchTab(r, state.tab));
   const tbody = $('rows');
   tbody.innerHTML = '';
-  const list = filtered();
-  $('summary').textContent = list.length === state.records.length
-    ? `ทั้งหมด ${state.records.length} รายการ`
-    : `แสดง ${list.length} จาก ${state.records.length} รายการ`;
+  $('footnote').textContent = list.length ? `แสดง ${list.length} จาก ${state.records.length} รายการ` : '';
   if (!list.length) {
-    const msg = state.records.length ? 'ไม่พบบันทึกที่ตรงกับตัวกรอง'
-      : canReg() ? 'ยังไม่มีบันทึก กด "เพิ่มบันทึก" เพื่อเริ่มต้น' : 'ยังไม่มีบันทึก';
-    tbody.append(h('tr', {}, h('td', { colspan: 10, class: 'empty' }, msg)));
+    const [head, msg] = state.records.length
+      ? ['ไม่พบบันทึกที่ตรงกับเงื่อนไข', 'ลองเปลี่ยนคำค้นหา หรือเลือก "ทั้งหมด" ในแถบด้านบน']
+      : ['ยังไม่มีบันทึก', canReg() ? 'กด "เพิ่มบันทึก" เพื่อเริ่มต้น' : 'บันทึกที่งานทะเบียนเพิ่มจะแสดงที่นี่'];
+    tbody.append(h('tr', {}, h('td', { colspan: 7, class: 'empty' }, h('strong', {}, head), msg)));
     return;
   }
   list.forEach(r => tbody.append(rowEl(r)));
 }
- 
+
+function filesEl(r, inDrawer = false) {
+  const box = h('div', { class: 'files', id: inDrawer ? 'drawerFiles' : null },
+    r.files.length
+      ? r.files.map(f => h('a', { href: f.url, target: '_blank', rel: 'noopener', title: f.name }, icon('file'), h('span', {}, f.name)))
+      : h('span', { class: 'nofile' }, 'ยังไม่มีไฟล์'));
+  if (canReg()) box.append(h('button', { type: 'button', class: 'attach', onclick: e => attach(r, e.currentTarget) },
+    icon('upload'), inDrawer ? 'แนบไฟล์เพิ่ม' : 'แนบไฟล์'));
+  return box;
+}
+
+function statusEl(r) {
+  if (!canEval()) return h('span', { class: 'status ' + tone(r.status) }, r.status || 'ยังไม่ระบุ');
+  const sel = h('select', { class: 'status ' + tone(r.status), 'aria-label': 'สถานะ เลขที่ ' + r.memoNo,
+    onchange: e => quickStatus(r, e.currentTarget) });
+  fillSelect(sel, ['', ...state.me.statuses], v => v || 'ยังไม่ระบุ');
+  sel.value = r.status;
+  return sel;
+}
+
 function rowEl(r) {
-  const files = h('div', { class: 'files' },
-    r.files.length ? r.files.map(f => h('a', { href: f.url, target: '_blank', rel: 'noopener' }, '📎 ' + f.name))
-                   : h('span', { class: 'nofile' }, 'ยังไม่มีไฟล์'));
-  if (canReg()) files.append(h('button', { class: 'attach', onclick: e => attach(r, e.currentTarget) }, '+ แนบไฟล์'));
- 
-  let status;
-  if (canEval()) {
-    status = h('select', { class: 'status ' + statusClass(r.status), 'aria-label': 'สถานะ ลำดับ ' + r.no,
-      onchange: e => quickStatus(r, e.currentTarget) });
-    fillSelect(status, ['', ...state.me.statuses], v => v || 'ยังไม่ระบุ');
-    status.value = r.status;
-  } else {
-    status = h('span', { class: 'status ' + statusClass(r.status) }, r.status || 'ยังไม่ระบุ');
-  }
- 
-  const editable = canReg() || canEval();
+  const termYear = [r.term, r.year].filter(Boolean).join('/');
+  const notes = [];
+  if (r.note1) notes.push(h('p', {}, r.note2 ? h('span', { class: 'lbl' }, '1.') : null, r.note1));
+  if (r.note2) notes.push(h('p', {}, h('span', { class: 'lbl' }, '2.'), r.note2));
   return h('tr', {},
-    h('td', { class: 'center nowrap', 'data-label': 'ลำดับ' }, r.no),
-    h('td', { class: 'center nowrap', 'data-label': 'ภาคเรียน/ปีการศึกษา' }, [r.term, r.year].filter(Boolean).join('/')),
-    h('td', { class: 'subject', 'data-label': 'บันทึกเรื่อง' }, r.subject),
-    h('td', { class: 'center nowrap memo', 'data-label': 'เลขที่บันทึก' }, r.memoNo),
-    h('td', { class: 'nowrap', 'data-label': 'วันที่บันทึก' }, r.memoDate),
-    h('td', { 'data-label': 'ไฟล์บันทึกข้อความและเอกสาร' }, files),
-    h('td', { class: 'sep', 'data-label': 'สถานะการบันทึกผลลงระบบ' }, status),
-    h('td', { class: 'note', 'data-label': 'หมายเหตุ 1' }, r.note1),
-    h('td', { class: 'note', 'data-label': 'หมายเหตุ 2' }, r.note2),
-    h('td', { class: 'center sep' }, editable ? h('button', { class: 'edit', onclick: () => openDialog(r) }, 'แก้ไข') : null),
+    h('td', { class: 'center nowrap num', 'data-label': 'ลำดับ' }, String(r.no)),
+    h('td', { class: 'nowrap', 'data-label': 'เลขที่บันทึก' },
+      h('span', { class: 'memo-no num' }, r.memoNo || '-'), h('span', { class: 'sub num' }, r.memoDate)),
+    h('td', { class: 'subject', 'data-label': 'บันทึกเรื่อง' },
+      h('span', { class: 'title' }, r.subject), termYear ? h('span', { class: 'sub' }, 'ภาคเรียน ' + termYear) : null),
+    h('td', { 'data-label': 'ไฟล์แนบ' }, filesEl(r)),
+    h('td', { class: 'sep', 'data-label': 'สถานะการบันทึกผลลงระบบ' }, statusEl(r)),
+    h('td', { class: 'notes', 'data-label': 'หมายเหตุ' }, notes.length ? notes : h('span', { class: 'nofile' }, '-')),
+    h('td', { class: 'center sep' }, h('button', { class: 'edit', onclick: () => openDrawer(r) },
+      ...(canReg() || canEval() ? [icon('pencil'), 'แก้ไข'] : [icon('eye'), 'ดู']))),
   );
 }
- 
+
 /* ---------- การกระทำ ---------- */
-// ใส่ข้อมูลแถวที่ server ส่งกลับมาแทนของเดิม ไม่ต้องโหลดทั้งตารางใหม่
 function upsert(rec) {
   const i = state.records.findIndex(r => r.row === rec.row);
   if (i >= 0) state.records[i] = rec; else state.records.push(rec);
+  return rec;
 }
- 
-// เปลี่ยนสถานะบนหน้าจอทันที แล้วค่อยบันทึกเบื้องหลัง ถ้าบันทึกไม่สำเร็จจะย้อนกลับค่าเดิม
+
+// เปลี่ยนสถานะบนหน้าจอทันที บันทึกเบื้องหลัง ถ้าไม่สำเร็จจะย้อนกลับ
 async function quickStatus(r, sel) {
   const old = r.status;
   r.status = sel.value;
-  sel.className = 'status ' + statusClass(r.status);
+  render();
   try {
     upsert(await api('update', { row: r.row, record: { status: r.status } }));
     toast('บันทึกสถานะแล้ว');
-  } catch {
-    r.status = old;
-    sel.value = old;
-    sel.className = 'status ' + statusClass(old);
-  }
+  } catch { r.status = old; }
+  render();
 }
- 
+
 function attach(r, btn) {
   const input = h('input', { type: 'file', multiple: true });
   input.onchange = async () => {
     for (const f of [...input.files]) {
       if (f.size > CONFIG.MAX_FILE_MB * 1024 * 1024) { toast(`"${f.name}" ใหญ่เกิน ${CONFIG.MAX_FILE_MB} MB`, true); continue; }
-      btn.disabled = true; btn.textContent = 'กำลังแนบไฟล์…';
+      btn.disabled = true; btn.replaceChildren(icon('upload'), 'กำลังแนบไฟล์…');
       try {
         const data = await toBase64(f);
         const res = await api('upload', { row: r.row, file: { name: f.name, type: f.type, data } });
@@ -526,10 +709,11 @@ function attach(r, btn) {
       } catch {}
     }
     render();
+    if (state.editing && state.editing.row === r.row) { $('drawerFiles').replaceWith(filesEl(r, true)); loadHistory(r.row); }
   };
   input.click();
 }
- 
+
 function toBase64(file) {
   return new Promise((ok, bad) => {
     const rd = new FileReader();
@@ -538,12 +722,40 @@ function toBase64(file) {
     rd.readAsDataURL(file);
   });
 }
- 
-function openDialog(r = null) {
-  state.editingRow = r ? r.row : null;
-  const f = $('dlgForm');
+
+/* ---------- แผงรายละเอียด + แผ่นบันทึกข้อความ ---------- */
+function thaiDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso + 'T00:00:00');
+  return isNaN(d) ? '' : d.toLocaleDateString('th-TH', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+function updateMemo() {
+  const f = $('form');
+  $('mNo').textContent = f.memoNo.value.trim();
+  $('mDate').textContent = thaiDate(f.memoDate.value);
+  $('mSubject').textContent = f.subject.value.trim();
+  $('mTerm').textContent = f.term.value.trim();
+  $('mYear').textContent = f.year.value.trim();
+}
+
+function stampMemo(status, animate) {
+  const st = $('stamp');
+  if (!status || !state.editing) { st.hidden = true; return; }
+  st.hidden = false;
+  st.className = 'stamp ' + tone(status);
+  st.replaceChildren(status, h('small', {}, 'งานวัดผล'));
+  if (animate) { void st.offsetWidth; st.classList.add('thud'); }
+}
+
+['memoNo', 'memoDate', 'subject', 'term', 'year'].forEach(n => $('form')[n].addEventListener('input', updateMemo));
+$('form').status.addEventListener('change', e => stampMemo(e.target.value, true));
+
+function openDrawer(r = null) {
+  state.editing = r;
+  const f = $('form');
   f.reset();
-  $('dlgTitle').textContent = r ? `แก้ไขบันทึก ลำดับ ${r.no}` : 'เพิ่มบันทึก';
+  $('drawerTitle').textContent = r ? `รายละเอียดบันทึก ลำดับ ${r.no}` : 'เพิ่มบันทึก';
   if (r) {
     f.term.value = r.term; f.year.value = r.year; f.subject.value = r.subject;
     f.memoNo.value = r.memoNo; f.memoDate.value = r.memoDateISO;
@@ -553,38 +765,70 @@ function openDialog(r = null) {
     if (last) { f.term.value = last.term; f.year.value = last.year; }
     f.memoDate.value = new Date().toLocaleDateString('sv-SE');
   }
-  f.querySelectorAll('input[data-part="reg"]').forEach(el => el.disabled = !canReg());
-  f.querySelectorAll('select[data-part="eval"],textarea[data-part="eval"]').forEach(el => el.disabled = !canEval());
-  f.querySelectorAll('.section-title[data-part="eval"], label[data-part="eval"]').forEach(el => el.hidden = !r);
-  $('dlg').showModal();
+  f.querySelectorAll('[data-part="reg"]').forEach(el => el.disabled = !canReg());
+  f.querySelectorAll('[data-part="eval"]').forEach(el => el.disabled = !canEval());
+  ['fileBlock', 'evalBlock', 'historyBlock'].forEach(id => $(id).hidden = !r);
+  const editable = !r ? canReg() : (canReg() || canEval());
+  $('saveBtn').hidden = !editable;
+  $('cancelBtn').textContent = editable ? 'ยกเลิก' : 'ปิด';
+  updateMemo();
+  if (r) { $('drawerFiles').replaceWith(filesEl(r, true)); loadHistory(r.row); }
+  $('drawer').showModal();
+  f.scrollTop = 0;
+  stampMemo(r?.status, true);
 }
- 
-$('addBtn').onclick = () => openDialog();
-$('dlgCancel').onclick = () => $('dlg').close();
- 
-$('dlgForm').addEventListener('submit', async e => {
+
+async function loadHistory(row) {
+  const list = $('historyList');
+  list.innerHTML = '<li class="muted">กำลังโหลดประวัติ…</li>';
+  let items;
+  try { items = await api('history', { row }); } catch { list.innerHTML = ''; return; }
+  if (!state.editing || state.editing.row !== row) return;
+  list.innerHTML = '';
+  if (!items.length) { list.append(h('li', { class: 'muted' }, 'ยังไม่มีประวัติการแก้ไขผ่านเว็บ')); return; }
+  items.forEach(it => {
+    let detail;
+    if (it.action === 'แก้ไข') detail = `${it.field}: ${it.from || '(ว่าง)'} เปลี่ยนเป็น ${it.to || '(ว่าง)'}`;
+    else if (it.action === 'แนบไฟล์') detail = `แนบไฟล์ ${it.to}`;
+    else detail = it.action;
+    list.append(h('li', {}, h('div', {}, detail), h('div', { class: 'meta' }, it.at + ' โดย ', h('strong', {}, it.email))));
+  });
+}
+
+function closeDrawer() { $('drawer').close(); }
+$('drawer').addEventListener('close', () => { state.editing = null; });
+$('drawerClose').onclick = closeDrawer;
+$('cancelBtn').onclick = closeDrawer;
+$('drawer').addEventListener('click', e => { if (e.target === $('drawer')) closeDrawer(); });
+$('addBtn').onclick = () => openDrawer();
+
+$('form').addEventListener('submit', async e => {
   e.preventDefault();
   const f = e.currentTarget;
   const record = {};
-  f.querySelectorAll('[name]').forEach(el => { if (!el.disabled && !el.closest('[hidden]')) record[el.name] = el.value.trim(); });
-  const btn = $('dlgSave');
+  f.querySelectorAll('[name]').forEach(el => {
+    if (!el.disabled && !el.closest('[hidden]')) record[el.name] = el.value.trim();
+  });
+  const editingRow = state.editing?.row;
+  const btn = $('saveBtn');
   btn.disabled = true; btn.textContent = 'กำลังบันทึก…';
   try {
-    const saved = state.editingRow
-      ? await api('update', { row: state.editingRow, record })
-      : await api('add', { record });
-    upsert(saved);
-    $('dlg').close();
-    toast(state.editingRow ? 'บันทึกการแก้ไขแล้ว' : 'เพิ่มบันทึกแล้ว');
+    const saved = upsert(editingRow
+      ? await api('update', { row: editingRow, record })
+      : await api('add', { record }));
     buildFilters();
     render();
+    if (editingRow) { closeDrawer(); toast('บันทึกการแก้ไขแล้ว'); }
+    else { toast('เพิ่มบันทึกแล้ว แนบไฟล์ต่อได้เลย'); openDrawer(saved); }
   } catch {}
   btn.disabled = false; btn.textContent = 'บันทึก';
 });
- 
+
 let toastTimer;
 function toast(msg, isError = false) {
   const t = $('toast');
+  const host = $('drawer').open ? $('drawer') : document.body; // ไม่ให้ถูกแผงบัง
+  if (t.parentNode !== host) host.append(t);
   t.textContent = msg; t.className = 'toast' + (isError ? ' error' : ''); t.hidden = false;
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.hidden = true, isError ? 6000 : 2500);
@@ -592,4 +836,3 @@ function toast(msg, isError = false) {
 </script>
 </body>
 </html>
- 
